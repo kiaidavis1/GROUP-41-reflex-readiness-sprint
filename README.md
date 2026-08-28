@@ -19,8 +19,8 @@ where the delivery stands.
 ```
 /retailer   → request-logging flow, data model      (owner: Amanda Ireri)
 /dispatcher → assignment logic                       (owner: Kiprop Lilian)
-/rider      → status-update flow, sync + scanning     (owner: Member 4)
-/docs       → trade-off log, demo script, deck        (owner: Member 5)
+/rider      → status-update flow, sync + scanning     (owner: Winnie)
+/docs       → trade-off log, demo script, deck        (owner: Abdurehman)
 ```
 
 Architecture decisions and the retry/backoff + webhook/HMAC pivot work sit
