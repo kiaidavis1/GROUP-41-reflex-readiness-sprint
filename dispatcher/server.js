@@ -1,5 +1,5 @@
 const express = require("express");
-const retryWithBackoff = require("../architecture/retry-backoff/retry.js");
+const retryWithBackoff = require("../retry-backoff/retry.js");
 const sendWebhook = require("../architecture/hmac-webhook/sendWebhook.js");
 
 const app = express();
