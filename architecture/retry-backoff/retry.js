@@ -18,7 +18,7 @@ async function retryWithBackoff(fn, maxRetries = 3, baseDelayMs = 1000) {
         throw err;
       }
 
-      const waitTime = baseDelayMs * Math.pow(2, attempt - 1); // 1s, 2s, 4s.
+      const waitTime = baseDelayMs * Math.pow(2, attempt - 1); // 1s, 2s, 4s...
       console.log(` Waiting ${waitTime / 1000}s before retrying...`);
       await delay(waitTime);
     }

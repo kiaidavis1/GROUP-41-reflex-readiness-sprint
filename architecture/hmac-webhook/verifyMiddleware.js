@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const SECRET = "northstar-secret-key"; // must match sendWebhook.js exactly
+const SECRET = process.env.WEBHOOK_SECRET || "northstar-secret-key"; // must match sendWebhook.js exactly
 
 function verifyWebhookSignature(req, res, next) {
   const signature = req.get("X-signature");

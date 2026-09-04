@@ -1,12 +1,12 @@
 const express = require("express");
-const retryWithBackoff = require("../retry-backoff/retry.js");
+const retryWithBackoff = require("../architecture/retry-backoff/retry.js");
 const sendWebhook = require("../architecture/hmac-webhook/sendWebhook.js");
 
 const app = express();
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
 
-const RETAILER_URL = "http://localhost:3001";
-const RIDER_URL = "http://localhost:3003";
+const RETAILER_URL = process.env.RETAILER_URL || "http://localhost:3001";
+const RIDER_URL = process.env.RIDER_URL || "http://localhost:3003";
 
 app.get("/requests/open", async (req, res) => {
   try {
@@ -35,4 +35,5 @@ app.post("/requests/:id/assign", async (req, res) => {
   }
 });
 
-app.listen(3002, () => console.log("Dispatcher service running on port 3002"));
+const PORT = process.env.PORT || 3002;
+app.listen(PORT, () => console.log(`Dispatcher service running on port ${PORT}`));

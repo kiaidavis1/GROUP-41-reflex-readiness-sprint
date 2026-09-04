@@ -6,7 +6,7 @@ const verifyWebhookSignature = require("../architecture/hmac-webhook/verifyMiddl
 const app = express();
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
 
-const RETAILER_URL = "http://localhost:3001";
+const RETAILER_URL = process.env.RETAILER_URL || "http://localhost:3001";
 let deliveries = [];
 
 app.post("/webhook", verifyWebhookSignature, (req, res) => {
@@ -34,4 +34,5 @@ app.patch("/deliveries/:id/status", async (req, res) => {
   }
 });
 
-app.listen(3003, () => console.log("Rider service running on port 3003"));
+const PORT = process.env.PORT || 3003;
+app.listen(PORT, () => console.log(`Rider service running on port ${PORT}`));

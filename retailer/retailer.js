@@ -29,4 +29,5 @@ app.post("/webhook", verifyWebhookSignature, (req, res) => {
   res.status(200).json({ status: "received" });
 });
 
-app.listen(3001, () => console.log("Retailer service running on port 3001"));
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`Retailer service running on port ${PORT}`));
