@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflex - Rider Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 24px;
+        }
+
+        header span {
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h2 {
+            margin-bottom: 8px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .section-title {
+            margin-bottom: 15px;
+        }
+
+        .delivery-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .delivery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .delivery-header h3 {
+            font-size: 18px;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #e5e7eb;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .details p {
+            font-size: 14px;
+        }
+
+        .details strong {
+            color: #555;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .pickup {
+            background: #2563eb;
+            color: white;
+        }
+
+        .deliver {
+            background: #16a34a;
+            color: white;
+        }
+
+        button:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        .scan-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .scan-section input {
+            width: 70%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-right: 8px;
+        }
+
+        .scan-btn {
+            background: #111827;
+            color: white;
+        }
+
+        #scanMessage {
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 700px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .details {
+                grid-template-columns: 1fr;
+            }
+
+            .scan-section input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>REFLEX</h1>
+
+    <div>
+        <span>Rider Dashboard</span>
+        <span id="connectionStatus">🟢 Online</span>
+        <span id="syncStatus">Synced</span>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="welcome">
+        <h2>Welcome, Rider 👋</h2>
+        <p>Manage your assigned deliveries and keep retailers updated.</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <h3>Assigned</h3>
+            <p id="assignedCount">0</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Picked Up</h3>
+            <p id="pickedUpCount">0</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Delivered</h3>
+            <p id="deliveredCount">0</p>
+        </div>
+    </div>
+
+    <div class="scan-section">
+        <h2 class="section-title">Scan Delivery</h2>
+
+        <input
+            type="text"
+            id="deliveryCode"
+            placeholder="Enter delivery code e.g. REF-001"
+        >
+
+        <button class="scan-btn" onclick="scanDelivery()">
+            Scan
+        </button>
+
+        <p id="scanMessage"></p>
+    </div>
+
+    <h2 class="section-title">My Deliveries</h2>
+
+    <div id="deliveryList"></div>
+
+</div>
+
+<script>
+
+    let deliveries = [
+        {
+            id: "REF-001",
+            customer: "Brian Mwangi",
+            phone: "0712345678",
+            address: "Nyali, Mombasa",
+            item: "Samsung Phone",
+            status: "Assigned"
+        },
+        {
+            id: "REF-002",
+            customer: "Mary Wanjiku",
+            phone: "0723456789",
+            address: "Bamburi, Mombasa",
+            item: "Laptop",
+            status: "Picked Up"
+        },
+        {
+            id: "REF-003",
+            customer: "Kevin Otieno",
+            phone: "0734567890",
+            address: "Mtwapa, Kilifi",
+            item: "Power Bank",
+            status: "Delivered"
+        }
+    ];
+
+    function renderDeliveries() {
+
+        const deliveryList = document.getElementById("deliveryList");
+
+        deliveryList.innerHTML = "";
+
+        deliveries.forEach((delivery, index) => {
+
+            const card = document.createElement("div");
+
+            card.className = "delivery-card";
+
+            card.innerHTML = `
+                <div class="delivery-header">
+                    <h3>${delivery.id} - ${delivery.customer}</h3>
+                    <span class="status">${delivery.status}</span>
+                </div>
+
+                <div class="details">
+                    <p><strong>Phone:</strong> ${delivery.phone}</p>
+                    <p><strong>Address:</strong> ${delivery.address}</p>
+                    <p><strong>Item:</strong> ${delivery.item}</p>
+                    <p><strong>Status:</strong> ${delivery.status}</p>
+                </div>
+
+                <div class="actions">
+
+                    <button
+                        class="pickup"
+                        onclick="updateStatus(${index}, 'Picked Up')"
+                        ${delivery.status !== "Assigned" ? "disabled" : ""}
+                    >
+                        Mark Picked Up
+                    </button>
+
+                    <button
+                        class="deliver"
+                        onclick="updateStatus(${index}, 'Delivered')"
+                        ${delivery.status !== "Picked Up" ? "disabled" : ""}
+                    >
+                        Mark Delivered
+                    </button>
+
+                </div>
+            `;
+
+            deliveryList.appendChild(card);
+        });
+
+        updateStats();
+    }
+
+
+  function updateStatus(index, newStatus) {
+
+    deliveries[index].status = newStatus;
+
+    localStorage.setItem(
+        "reflexDeliveries",
+        JSON.stringify(deliveries)
+    );
+
+    let pendingSync = JSON.parse(
+        localStorage.getItem("reflexPendingSync") || "[]"
+    );
+
+    pendingSync.push({
+        deliveryId: deliveries[index].id,
+        status: newStatus,
+        time: new Date().toISOString()
+    });
+
+    localStorage.setItem(
+        "reflexPendingSync",
+        JSON.stringify(pendingSync)
+    );
+
+    updateSyncStatus();
+    renderDeliveries();
+}
+
+
+    function updateStats() {
+
+        const assigned = deliveries.filter(
+            delivery => delivery.status === "Assigned"
+        ).length;
+
+        const pickedUp = deliveries.filter(
+            delivery => delivery.status === "Picked Up"
+        ).length;
+
+        const delivered = deliveries.filter(
+            delivery => delivery.status === "Delivered"
+        ).length;
+
+        document.getElementById("assignedCount").textContent = assigned;
+        document.getElementById("pickedUpCount").textContent = pickedUp;
+        document.getElementById("deliveredCount").textContent = delivered;
+    }
+
+
+    function scanDelivery() {
+
+        const code = document
+            .getElementById("deliveryCode")
+            .value
+            .trim()
+            .toUpperCase();
+
+        const message = document.getElementById("scanMessage");
+
+        const delivery = deliveries.find(
+            item => item.id === code
+        );
+
+        if (delivery) {
+
+            message.textContent =
+                `Delivery ${delivery.id} found — ${delivery.customer} — ${delivery.status}`;
+
+        } else {
+
+            message.textContent =
+                "Delivery not found. Check the delivery code.";
+
+        }
+    }
+
+
+    const savedDeliveries =
+        localStorage.getItem("reflexDeliveries");
+
+    if (savedDeliveries) {
+        deliveries = JSON.parse(savedDeliveries);
+    }
+
+    renderDeliveries();
+
+    function updateConnectionStatus() {
+    const status = document.getElementById("connectionStatus");
+
+    if (navigator.onLine) {
+        status.textContent = "🟢 Online";
+    } else {
+        status.textContent = "🔴 Offline";
+    }
+}
+
+window.addEventListener("online", updateConnectionStatus);
+window.addEventListener("offline", updateConnectionStatus);
+
+updateConnectionStatus();
+updateSyncStatus();
+syncPendingUpdates();
+
+function updateSyncStatus() {
+
+    const syncStatus = document.getElementById("syncStatus");
+
+    const pendingSync = JSON.parse(
+        localStorage.getItem("reflexPendingSync") || "[]"
+    );
+
+    if (pendingSync.length === 0) {
+        syncStatus.textContent = "✅ Synced";
+    } else {
+        syncStatus.textContent =
+            `⏳ ${pendingSync.length} update(s) pending sync`;
+    }
+}
+
+function syncPendingUpdates() {
+
+    if (!navigator.onLine) {
+        return;
+    }
+
+    const pendingSync = JSON.parse(
+        localStorage.getItem("reflexPendingSync") || "[]"
+    );
+
+    if (pendingSync.length === 0) {
+        updateSyncStatus();
+        return;
+    }
+
+    // Simulate sending the updates to the server
+    console.log("Syncing updates:", pendingSync);
+
+    localStorage.setItem("reflexPendingSync", "[]");
+
+    updateSyncStatus();
+
+    console.log("All pending updates synced successfully.");
+}
+
+window.addEventListener("online", syncPendingUpdates);
+
+</script>
+
+</body>
+</html>
